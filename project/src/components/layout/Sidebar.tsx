@@ -136,59 +136,70 @@ export const Sidebar: React.FC<SidebarProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed lg:relative left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 
-        transform transition-all duration-300 ease-in-out
-        lg:transform-none lg:shadow-xl lg:border-r border-gray-200
+        fixed lg:relative left-0 top-0 h-full w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-50 
+        transform transition-all duration-500 ease-out
+        lg:transform-none lg:shadow-xl lg:border-r border-slate-200/50
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        before:absolute before:inset-0 before:bg-gradient-to-b before:from-slate-50/80 before:via-white/90 before:to-slate-50/80 before:pointer-events-none
       `}>
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full relative z-10">
           {/* Header */}
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800">
-            <div className="flex items-center justify-between">
+          <div className="p-6 border-b border-slate-200/60 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+            {/* Subtle pattern overlay */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
+            </div>
+            
+            <div className="flex items-center justify-between relative">
               <motion.button
                 onClick={handleBackToHome}
                 className="flex items-center text-left group"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Logo size="md" variant="full" className="text-white" />
+                <Logo size="md" variant="full" className="text-white drop-shadow-lg" />
               </motion.button>
               
               {/* Close button for mobile */}
-              <button
+              <motion.button
                 onClick={onClose}
-                className="lg:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors"
+                className="lg:hidden p-2 rounded-xl text-white/90 hover:bg-white/15 transition-all duration-300 hover:text-white"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
-                <X size={20} />
-              </button>
+                <X size={18} />
+              </motion.button>
             </div>
           </div>
 
           {/* User info */}
           {user && (
-            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-blue-50">
+            <div className="p-6 border-b border-slate-200/60 bg-gradient-to-br from-slate-50 via-white to-slate-50/80 relative">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-white font-semibold">
-                    {user.firstName[0]}{user.lastName[0]}
-                  </span>
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-2xl flex items-center justify-center shadow-xl ring-3 ring-slate-100">
+                    <span className="text-white font-bold text-base tracking-wide">
+                      {user.firstName[0]}{user.lastName[0]}
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
+                  <p className="text-sm font-bold text-slate-900 truncate tracking-tight">
                     {user.firstName} {user.lastName}
                   </p>
-                  <p className="text-xs text-gray-600 capitalize">
+                  <p className="text-xs text-slate-600 capitalize font-medium tracking-wide">
                     {user.role.replace('_', ' ')}
                   </p>
                   {user.department && (
-                    <p className="text-xs text-blue-600 font-medium">
+                    <p className="text-xs text-slate-700 font-semibold mt-1 bg-slate-100 px-2 py-1 rounded-lg inline-block">
                       Dép. {user.department}
                     </p>
                   )}
@@ -198,29 +209,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {/* Navigation */}
-          <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {availableMenuItems.map((item) => (
               <motion.button
                 key={item.path}
-                whileHover={{ x: 4 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ x: 4, scale: 1.01 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => onNavigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 font-medium tracking-wide ${
                   currentPath === item.path
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white shadow-lg shadow-slate-900/25 ring-1 ring-slate-600'
+                    : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-900/10'
                 }`}
               >
-                <div className={`${
+                <div className={`transition-all duration-300 ${
                   currentPath === item.path 
-                    ? 'text-white' 
-                    : 'text-gray-500'
+                    ? 'text-white drop-shadow-sm' 
+                    : 'text-slate-500 group-hover:text-slate-700'
                 }`}>
                   {item.icon}
                 </div>
-                <span className="font-medium flex-1">{item.label}</span>
+                <span className="flex-1 text-sm">{item.label}</span>
                 {item.badge && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  <span className="bg-gradient-to-r from-rose-500 to-rose-600 text-white text-xs px-2 py-1 rounded-lg font-bold shadow-md">
                     {item.badge}
                   </span>
                 )}
@@ -229,22 +240,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 space-y-3 bg-gray-50">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white hover:text-gray-900 transition-all duration-200">
-              <Bell size={20} className="text-gray-500" />
-              <span className="font-medium">Notifications</span>
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-auto font-medium">
+          <div className="p-4 border-t border-slate-200/60 space-y-2 bg-gradient-to-br from-slate-50/80 via-white to-slate-50/80">
+            <motion.button 
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white hover:text-slate-900 transition-all duration-300 font-medium tracking-wide hover:shadow-md hover:shadow-slate-900/10"
+              whileHover={{ x: 3, scale: 1.01 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <Bell size={18} className="text-slate-500" />
+              <span className="text-sm">Notifications</span>
+              <span className="bg-gradient-to-r from-rose-500 to-rose-600 text-white text-xs px-2 py-1 rounded-lg ml-auto font-bold shadow-md">
                 3
               </span>
-            </button>
+            </motion.button>
             
-            <button
+            <motion.button
               onClick={logout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 transition-all duration-300 font-medium tracking-wide hover:shadow-md hover:shadow-rose-900/10"
+              whileHover={{ x: 3, scale: 1.01 }}
+              whileTap={{ scale: 0.97 }}
             >
-              <LogOut size={20} />
-              <span className="font-medium">Déconnexion</span>
-            </button>
+              <LogOut size={18} />
+              <span className="text-sm">Déconnexion</span>
+            </motion.button>
           </div>
         </div>
       </div>

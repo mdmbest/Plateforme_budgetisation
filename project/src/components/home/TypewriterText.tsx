@@ -6,13 +6,15 @@ interface TypewriterTextProps {
   typingSpeed?: number;
   deletingSpeed?: number;
   pauseDuration?: number;
+  className?: string;
 }
 
 export const TypewriterText: React.FC<TypewriterTextProps> = ({
   texts,
   typingSpeed = 100,
   deletingSpeed = 50,
-  pauseDuration = 2000
+  pauseDuration = 2000,
+  className = "text-slate-600 font-semibold"
 }) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
@@ -54,7 +56,7 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
 
   return (
     <div className="relative">
-      <span className="text-blue-600 font-semibold">
+      <span className={className}>
         {currentText}
         <motion.span
           animate={{ opacity: [1, 0] }}

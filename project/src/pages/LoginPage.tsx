@@ -65,10 +65,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBack, onLoginSuccess }) 
             <div className="flex justify-center mb-6">
               <Logo size="lg" variant="full" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl font-bold text-gray-900 mb-2">
               Connexion ESP Budget
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm text-gray-600">
               Accédez à votre espace de gestion budgétaire
             </p>
             <div className="flex items-center justify-center gap-2 mt-4 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">

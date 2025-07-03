@@ -205,23 +205,23 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onBackToHo
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                <Book className="text-white" size={24} />
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Book className="text-white" size={18} />
               </div>
               <div>
-                <h1 className="font-bold text-lg text-gray-900">Documentation ESP Budget</h1>
+                <h1 className="font-bold text-base text-gray-900">Documentation ESP Budget</h1>
                 <p className="text-xs text-gray-500">Guide d'utilisation complet</p>
               </div>
             </div>
             
             <Button onClick={onBackToHome} variant="outline">
-              <Home size={16} />
+              <Home size={14} />
               Retour à l'accueil
             </Button>
           </div>
-        </div>
+               </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -264,17 +264,17 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onBackToHo
                 className={expandedSection === section.id ? 'block' : 'hidden'}
               >
                 <Card>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       {section.icon}
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{section.title}</h2>
                   </div>
 
                   <div className="space-y-6">
                     {section.content.map((item, index) => (
                       <div key={index}>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        <h3 className="text-base font-semibold text-gray-900 mb-2">
                           {item.title}
                         </h3>
                         <div className="prose prose-gray max-w-none">
@@ -300,7 +300,7 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onBackToHo
                 <Card>
                   <div className="text-center py-12">
                     <Logo size="lg" variant="full" className="justify-center mb-6" />
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3">
                       Bienvenue dans la Documentation ESP Budget
                     </h2>
                     <p className="text-gray-600 mb-6 max-w-2xl mx-auto">

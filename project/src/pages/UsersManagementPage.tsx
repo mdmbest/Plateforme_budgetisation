@@ -164,25 +164,25 @@ export const UsersManagementPage: React.FC = () => {
     {
       title: 'Total Utilisateurs',
       value: users.length.toString(),
-      icon: <Users className="text-blue-600" size={24} />,
+      icon: <Users className="text-blue-600" size={20} />,
       color: 'blue'
     },
     {
       title: 'Actifs',
       value: users.filter(u => u.isActive).length.toString(),
-      icon: <Shield className="text-green-600" size={24} />,
+      icon: <Shield className="text-green-600" size={20} />,
       color: 'green'
     },
     {
       title: 'Agents',
       value: users.filter(u => u.role === 'agent').length.toString(),
-      icon: <UserPlus className="text-purple-600" size={24} />,
+      icon: <UserPlus className="text-purple-600" size={20} />,
       color: 'purple'
     },
     {
       title: 'Administrateurs',
       value: users.filter(u => u.role === 'admin').length.toString(),
-      icon: <Shield className="text-red-600" size={24} />,
+      icon: <Shield className="text-red-600" size={20} />,
       color: 'red'
     }
   ];
@@ -192,12 +192,12 @@ export const UsersManagementPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
-          <p className="text-gray-600">
+          <h1 className="text-xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
+          <p className="text-sm text-gray-600">
             Créez et gérez les comptes utilisateurs de la plateforme
           </p>
         </div>
-        <Button variant="primary" icon={<Plus size={20} />} onClick={() => setShowCreateModal(true)}>
+        <Button variant="primary" icon={<Plus size={18} />} onClick={() => setShowCreateModal(true)}>
           Nouvel Utilisateur
         </Button>
       </div>

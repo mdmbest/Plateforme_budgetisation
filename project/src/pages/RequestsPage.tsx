@@ -83,41 +83,41 @@ export const RequestsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mes Demandes Budgétaires</h1>
-          <p className="text-gray-600">
+          <h1 className="text-xl font-bold text-gray-900">Mes Demandes Budgétaires</h1>
+          <p className="text-sm text-gray-600">
             Gérez et suivez l'état de vos demandes budgétaires
           </p>
         </div>
-        <Button variant="primary" icon={<Plus size={20} />}>
+        <Button variant="primary" icon={<Plus size={18} />}>
           Nouvelle Demande
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           {
             title: 'Total Demandes',
             value: userRequests.length.toString(),
-            icon: <FileText className="text-blue-600" size={24} />,
+            icon: <FileText className="text-blue-600" size={20} />,
             color: 'blue'
           },
           {
             title: 'En Attente',
             value: userRequests.filter(r => r.status.includes('review')).length.toString(),
-            icon: <Calendar className="text-yellow-600" size={24} />,
+            icon: <Calendar className="text-yellow-600" size={20} />,
             color: 'yellow'
           },
           {
             title: 'Approuvées',
             value: userRequests.filter(r => r.status.includes('approved')).length.toString(),
-            icon: <FileText className="text-green-600" size={24} />,
+            icon: <FileText className="text-green-600" size={20} />,
             color: 'green'
           },
           {
             title: 'Montant Total',
             value: formatCurrency(userRequests.reduce((sum, r) => sum + r.amount, 0)),
-            icon: <DollarSign className="text-purple-600" size={24} />,
+            icon: <DollarSign className="text-purple-600" size={20} />,
             color: 'purple'
           }
         ].map((stat, index) => (
@@ -130,18 +130,18 @@ export const RequestsPage: React.FC = () => {
             <Card hover className="relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
+                  <p className="text-xs font-medium text-gray-600 mb-1">
                     {stat.title}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-lg font-bold text-gray-900">
                     {stat.value}
                   </p>
                 </div>
-                <div className="p-3 rounded-full bg-gray-50">
+                <div className="p-2 rounded-lg bg-gray-50">
                   {stat.icon}
                 </div>
               </div>
-              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-${stat.color}-500`} />
+              <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-${stat.color}-500`} />
             </Card>
           </motion.div>
         ))}

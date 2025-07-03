@@ -36,9 +36,9 @@ export const DashboardPage: React.FC = () => {
           {
             title: 'Total Utilisateurs',
             value: users.length.toString(),
-            icon: <Users className="text-blue-600" size={24} />,
+            icon: <Users className="text-slate-600" size={24} />,
             change: `${users.filter(u => u.isActive).length} actifs`,
-            color: 'blue',
+            color: 'slate',
             trend: '+5%'
           },
           {
@@ -73,9 +73,9 @@ export const DashboardPage: React.FC = () => {
           {
             title: 'Mes Demandes',
             value: userRequests.length.toString(),
-            icon: <FileText className="text-blue-600" size={24} />,
+            icon: <FileText className="text-slate-600" size={24} />,
             change: '+2 ce mois',
-            color: 'blue',
+            color: 'slate',
             trend: '+25%'
           },
           {
@@ -110,9 +110,9 @@ export const DashboardPage: React.FC = () => {
           {
             title: 'Demandes Département',
             value: deptRequests.length.toString(),
-            icon: <FileText className="text-blue-600" size={24} />,
+            icon: <FileText className="text-slate-600" size={24} />,
             change: '+5 ce mois',
-            color: 'blue',
+            color: 'slate',
             trend: '+20%'
           },
           {
@@ -146,9 +146,9 @@ export const DashboardPage: React.FC = () => {
           {
             title: 'Total Demandes',
             value: requests.length.toString(),
-            icon: <FileText className="text-blue-600" size={24} />,
+            icon: <FileText className="text-slate-600" size={24} />,
             change: '+15 ce mois',
-            color: 'blue',
+            color: 'slate',
             trend: '+15%'
           },
           {
@@ -182,9 +182,9 @@ export const DashboardPage: React.FC = () => {
           {
             title: 'Demandes Finales',
             value: requests.filter(r => r.status === 'recteur_review').length.toString(),
-            icon: <FileText className="text-blue-600" size={24} />,
+            icon: <FileText className="text-slate-600" size={24} />,
             change: 'À approuver',
-            color: 'blue',
+            color: 'slate',
             trend: '0%'
           },
           {
@@ -218,9 +218,9 @@ export const DashboardPage: React.FC = () => {
           {
             title: 'Opérations Auditées',
             value: requests.filter(r => r.status.includes('approved')).length.toString(),
-            icon: <Shield className="text-blue-600" size={24} />,
+            icon: <Shield className="text-slate-600" size={24} />,
             change: 'Conformes',
-            color: 'blue',
+            color: 'slate',
             trend: '98%'
           },
           {
@@ -299,7 +299,7 @@ export const DashboardPage: React.FC = () => {
             type: 'info',
             title: 'Sauvegarde système',
             message: 'Sauvegarde automatique effectuée avec succès',
-            icon: <Settings className="text-blue-600" size={16} />
+            icon: <Settings className="text-slate-600" size={16} />
           },
           {
             type: 'warning',
@@ -365,23 +365,23 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-8 text-white">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl p-6 text-white">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-xl font-bold mb-1">
             Bienvenue, {user?.firstName} {user?.lastName}
           </h1>
-          <p className="text-blue-100 text-lg capitalize">
+          <p className="text-slate-200 text-sm capitalize">
             {user?.role.replace('_', ' ')} {user?.department && `- Département ${user.department}`}
           </p>
         </motion.div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <motion.div
             key={index}
@@ -390,11 +390,11 @@ export const DashboardPage: React.FC = () => {
             transition={{ duration: 0.6, delay: index * 0.1 }}
           >
             <Card hover className="relative overflow-hidden">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-full bg-gray-50">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 rounded-lg bg-gray-50">
                   {stat.icon}
                 </div>
-                <div className={`text-sm font-medium px-2 py-1 rounded-full ${
+                <div className={`text-xs font-medium px-2 py-1 rounded-full ${
                   stat.trend.startsWith('+') ? 'bg-green-100 text-green-700' :
                   stat.trend.startsWith('-') ? 'bg-red-100 text-red-700' :
                   'bg-gray-100 text-gray-700'
@@ -404,46 +404,46 @@ export const DashboardPage: React.FC = () => {
               </div>
               
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">
+                <p className="text-xs font-medium text-gray-600 mb-1">
                   {stat.title}
                 </p>
-                <p className="text-2xl font-bold text-gray-900 mb-1">
+                <p className="text-lg font-bold text-gray-900 mb-1">
                   {stat.value}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs text-gray-500">
                   {stat.change}
                 </p>
               </div>
               
-              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-${stat.color}-500`} />
+              <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-slate-500`} />
             </Card>
           </motion.div>
         ))}
       </div>
 
       {/* Content Grid */}
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Recent Requests */}
-        <Card>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+        <Card padding="md">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
               {user?.role === 'admin' ? 'Demandes Récentes' : 
                user?.role === 'agent' ? 'Mes Demandes Récentes' :
                user?.role === 'chef_departement' ? 'Demandes du Département' :
                'Demandes à Traiter'}
             </h2>
-            <Badge variant="info">
+            <Badge variant="info" size="sm">
               {relevantRequests.length} total
             </Badge>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {relevantRequests.slice(0, 5).map((request) => (
               <motion.div
                 key={request.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
@@ -462,19 +462,19 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         {/* Notifications */}
-        <Card>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+        <Card padding="md">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
               Notifications
             </h2>
-            <Badge variant="warning">
+            <Badge variant="warning" size="sm">
               {notifications.length} nouvelles
             </Badge>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {notifications.map((notification, index) => (
-              <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+              <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                 {notification.icon}
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">
