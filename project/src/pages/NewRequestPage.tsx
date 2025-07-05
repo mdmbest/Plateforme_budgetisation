@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Save, 
@@ -27,64 +27,50 @@ interface RequestItem {
   totalPrice: number;
 }
 
+const categories = [
+  'Équipement',
+  'Fournitures',
+  'Services',
+  'Formation',
+  'Maintenance',
+  'Logiciels',
+  'Mobilier',
+  'Autres'
+];
+
+const urgencyLevels = [
+  { value: 'low', label: 'Faible' },
+  { value: 'medium', label: 'Moyenne' },
+  { value: 'high', label: 'Élevée' },
+  { value: 'critical', label: 'Critique' }
+];
+
 export const NewRequestPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, getTokenInfo } = useAuth();
   const { addRequest } = useBudgetRequests();
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     category: '',
     title: '',
     description: '',
     justification: '',
     urgency: 'medium' as 'low' | 'medium' | 'high' | 'critical',
-    accountCode: ''
   });
-
   const [items, setItems] = useState<RequestItem[]>([
     { id: '1', description: '', quantity: 1, unitPrice: 0, totalPrice: 0 }
   ]);
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const categories = [
-    'Équipement',
-    'Formation',
-    'Maintenance',
-    'Fournitures',
-    'Services',
-    'Infrastructure',
-    'Logiciels',
-    'Recherche'
-  ];
-
-  const ohadaAccounts = [
-    { code: '2441001', name: 'Matériel informatique' },
-    { code: '2441002', name: 'Matériel de bureau' },
-    { code: '2441003', name: 'Matériel pédagogique' },
-    { code: '6061001', name: 'Fournitures de bureau' },
-    { code: '6061002', name: 'Fournitures informatiques' },
-    { code: '6241001', name: 'Formation du personnel' },
-    { code: '6151001', name: 'Maintenance équipements' },
-    { code: '6281001', name: 'Services externes' }
-  ];
-
-  const urgencyLevels = [
-    { value: 'low', label: 'Faible', color: 'default' },
-    { value: 'medium', label: 'Moyenne', color: 'info' },
-    { value: 'high', label: 'Élevée', color: 'warning' },
-    { value: 'critical', label: 'Critique', color: 'danger' }
-  ];
+  useEffect(() => {
+    if (!user) {
+      // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+      window.location.href = '/login';
+    }
+  }, [user]);
 
   const addItem = () => {
-    const newItem: RequestItem = {
-      id: Date.now().toString(),
-      description: '',
-      quantity: 1,
-      unitPrice: 0,
-      totalPrice: 0
-    };
-    setItems([...items, newItem]);
+    const newId = (items.length + 1).toString();
+    setItems([...items, { id: newId, description: '', quantity: 1, unitPrice: 0, totalPrice: 0 }]);
   };
 
   const removeItem = (itemId: string) => {
@@ -107,23 +93,22 @@ export const NewRequestPage: React.FC = () => {
   };
 
   const getTotalAmount = () => {
-    return items.reduce((sum, item) => sum + item.totalPrice, 0);
+    return items.reduce((total, item) => total + item.totalPrice, 0);
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.category) newErrors.category = 'La catégorie est requise';
-    if (!formData.title) newErrors.title = 'Le titre est requis';
-    if (!formData.description) newErrors.description = 'La description est requise';
-    if (!formData.justification) newErrors.justification = 'La justification est requise';
-    if (!formData.accountCode) newErrors.accountCode = 'Le compte comptable est requis';
-    
-    // Validate items
-    const hasValidItems = items.some(item => 
+    if (!formData.title.trim()) newErrors.title = 'Le titre est requis';
+    if (!formData.description.trim()) newErrors.description = 'La description est requise';
+    if (!formData.justification.trim()) newErrors.justification = 'La justification est requise';
+
+    // Vérifier les articles
+    const validItems = items.filter(item => 
       item.description.trim() && item.quantity > 0 && item.unitPrice > 0
     );
-    if (!hasValidItems) {
+    if (validItems.length === 0) {
       newErrors.items = 'Au moins un article valide est requis';
     }
 
@@ -152,7 +137,6 @@ export const NewRequestPage: React.FC = () => {
         amount: getTotalAmount(),
         justification: formData.justification,
         urgency: formData.urgency,
-        accountCode: formData.accountCode,
         status: isDraft ? 'draft' : 'submitted',
         items: validItems
       });
@@ -164,7 +148,6 @@ export const NewRequestPage: React.FC = () => {
         description: '',
         justification: '',
         urgency: 'medium',
-        accountCode: ''
       });
       setItems([{ id: '1', description: '', quantity: 1, unitPrice: 0, totalPrice: 0 }]);
 
@@ -174,6 +157,10 @@ export const NewRequestPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDebugToken = () => {
+    getTokenInfo();
   };
 
   return (
@@ -189,6 +176,9 @@ export const NewRequestPage: React.FC = () => {
             Créez une nouvelle demande pour votre département
           </p>
         </div>
+        <Button onClick={handleDebugToken} variant="outline" size="sm">
+          Debug Token
+        </Button>
       </div>
 
       {/* User Info */}
@@ -381,34 +371,6 @@ export const NewRequestPage: React.FC = () => {
                 {formatCurrency(getTotalAmount())}
               </span>
             </div>
-          </div>
-        </Card>
-
-        {/* Financial Information */}
-        <Card>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations comptables</h3>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Compte comptable OHADA *
-            </label>
-            <select
-              value={formData.accountCode}
-              onChange={(e) => setFormData({ ...formData, accountCode: e.target.value })}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.accountCode ? 'border-red-300' : 'border-gray-300'
-              }`}
-            >
-              <option value="">Sélectionner un compte</option>
-              {ohadaAccounts.map(account => (
-                <option key={account.code} value={account.code}>
-                  {account.code} - {account.name}
-                </option>
-              ))}
-            </select>
-            {errors.accountCode && (
-              <p className="mt-1 text-sm text-red-600">{errors.accountCode}</p>
-            )}
           </div>
         </Card>
 

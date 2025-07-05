@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String
+  role      UserRole
+  department String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+
+  // Relations
+  budgetRequests    BudgetRequest[] @relation("AgentRequests")
+  validatedRequests BudgetRequest[] @relation("ValidatorRequests")
+  comments         Comment[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  departments      Department[]     @relation("DepartmentChef")
+
+  @@map("users")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  code        String   @unique
+  chefId      String
+  totalBudget Float    @default(0)
+  usedBudget  Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  chef       User            @relation("DepartmentChef", fields: [chefId], references: [id])
+  requests   BudgetRequest[]
+
+  @@map("departments")
+}
+
+model BudgetRequest {
+  id           String        @id @default(cuid())
+  agentId      String
+  agentName    String
+  department   String
+  category     String
+  title        String
+  description  String
+  amount       Float
+  justification String
+  accountCode  String?
+  urgency      UrgencyLevel
+  attachments  String[]      @default([])
+  status       RequestStatus @default(draft)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  validatedBy  String?
+  validatedAt  DateTime?
+
+  // Relations
+  agent       User      @relation("AgentRequests", fields: [agentId], references: [id])
+  validator   User?     @relation("ValidatorRequests", fields: [validatedBy], references: [id])
+  dept        Department? @relation(fields: [department], references: [name], onDelete: SetNull)
+  comments    Comment[]
+  items       RequestItem[]
+  executions  BudgetExecution[]
+
+  @@map("budget_requests")
+}
+
+model RequestItem {
+  id          String   @id @default(cuid())
+  requestId   String
+  description String
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+  createdAt   DateTime @default(now())
+
+  // Relations
+  request BudgetRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("request_items")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  requestId String
+  userId    String
+  userName  String
+  content   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  request BudgetRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  actionUrl String?
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  userName  String
+  action    String
+  entity    String
+  entityId  String
+  details   String
+  ipAddress String?
+  timestamp DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model BudgetExecution {
+  id           String   @id @default(cuid())
+  requestId    String
+  supplierId   String
+  supplierName String
+  invoiceNumber String
+  invoiceDate  DateTime
+  amount       Float
+  status       ExecutionStatus @default(pending)
+  paymentDate  DateTime?
+  deliveryDate DateTime?
+  receivedBy   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  request BudgetRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("budget_executions")
+}
+
+model OhadaAccount {
+  code        String @id
+  name        String
+  category    String
+  description String
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ohada_accounts")
+}
+
+// Enums
+enum UserRole {
+  agent
+  chef_departement
+  direction
+  recteur
+  auditeur
+  admin
+}
+
+enum RequestStatus {
+  draft
+  submitted
+  chef_review
+  chef_approved
+  chef_rejected
+  direction_review
+  direction_approved
+  direction_rejected
+  recteur_review
+  recteur_approved
+  recteur_rejected
+  executed
+}
+
+enum UrgencyLevel {
+  low
+  medium
+  high
+  critical
+}
+
+enum NotificationType {
+  info
+  warning
+  error
+  success
+}
+
+enum ExecutionStatus {
+  pending
+  paid
+  cancelled
+} 

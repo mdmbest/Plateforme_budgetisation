@@ -124,6 +124,7 @@ export const UsersManagementPage: React.FC = () => {
         lastName: newUserData.lastName,
         role: newUserData.role,
         department: newUserData.department || undefined,
+        password: newUserData.password,
         isActive: true
       });
 

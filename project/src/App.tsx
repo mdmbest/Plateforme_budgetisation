@@ -18,7 +18,19 @@ function App() {
   const [currentState, setCurrentState] = useState<AppState>('home');
   const [currentPath, setCurrentPath] = useState('/dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, checkAuth } = useAuth();
+
+  // Vérifier l'authentification au chargement de l'app
+  useEffect(() => {
+    const initAuth = async () => {
+      const isAuth = await checkAuth();
+      if (isAuth) {
+        setCurrentState('dashboard');
+      }
+    };
+    
+    initAuth();
+  }, [checkAuth]);
 
   useEffect(() => {
     if (isAuthenticated && currentState !== 'dashboard') {

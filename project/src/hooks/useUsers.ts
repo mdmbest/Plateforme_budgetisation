@@ -5,107 +5,126 @@ interface UsersStore {
   users: User[];
   isLoading: boolean;
   createUser: (userData: Omit<User, 'id' | 'createdAt'>) => Promise<void>;
-  updateUser: (userId: string, userData: Partial<User>) => void;
-  deleteUser: (userId: string) => void;
+  updateUser: (userId: string, userData: Partial<User>) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
   getUsersByRole: (role: UserRole) => User[];
   getUsersByDepartment: (department: string) => User[];
   sendCredentials: (userId: string, method: 'email' | 'sms') => Promise<void>;
+  fetchUsers: () => Promise<void>;
 }
 
-// Mock users data with expanded list
-const mockUsers: User[] = [
-  {
-    id: 'admin-1',
-    email: 'admin@esp.sn',
-    firstName: 'Super',
-    lastName: 'Administrateur',
-    role: 'admin',
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '1',
-    email: 'agent@esp.sn',
-    firstName: 'Amadou',
-    lastName: 'Diallo',
-    role: 'agent',
-    department: 'Informatique',
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '2',
-    email: 'chef@esp.sn',
-    firstName: 'Fatou',
-    lastName: 'Sall',
-    role: 'chef_departement',
-    department: 'Informatique',
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '3',
-    email: 'direction@esp.sn',
-    firstName: 'Ousmane',
-    lastName: 'Ba',
-    role: 'direction',
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '4',
-    email: 'recteur@esp.sn',
-    firstName: 'Professeur',
-    lastName: 'Ndiaye',
-    role: 'recteur',
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '5',
-    email: 'auditeur@esp.sn',
-    firstName: 'Aïcha',
-    lastName: 'Mbaye',
-    role: 'auditeur',
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  }
-];
+const API_BASE_URL = 'http://localhost:3001/api';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('esp_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
 
 export const useUsers = create<UsersStore>((set, get) => ({
-  users: mockUsers,
+  users: [],
   isLoading: false,
+
+  fetchUsers: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des utilisateurs');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        set({ users: data.data.data || [], isLoading: false });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des utilisateurs:', error);
+      set({ isLoading: false });
+    }
+  },
 
   createUser: async (userData) => {
     set({ isLoading: true });
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString()
-    };
-    
-    set(state => ({
-      users: [...state.users, newUser],
-      isLoading: false
-    }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création de l\'utilisateur');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        set(state => ({
+          users: [...state.users, data.data],
+          isLoading: false
+        }));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      set({ isLoading: false });
+      throw error;
+    }
   },
 
-  updateUser: (userId, userData) => {
-    set(state => ({
-      users: state.users.map(user =>
-        user.id === userId ? { ...user, ...userData } : user
-      )
-    }));
+  updateUser: async (userId, userData) => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour de l\'utilisateur');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        set(state => ({
+          users: state.users.map(user =>
+            user.id === userId ? data.data : user
+          ),
+          isLoading: false
+        }));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+      set({ isLoading: false });
+      throw error;
+    }
   },
 
-  deleteUser: (userId) => {
-    set(state => ({
-      users: state.users.filter(user => user.id !== userId)
-    }));
+  deleteUser: async (userId) => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression de l\'utilisateur');
+      }
+
+      set(state => ({
+        users: state.users.filter(user => user.id !== userId),
+        isLoading: false
+      }));
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'utilisateur:', error);
+      set({ isLoading: false });
+      throw error;
+    }
   },
 
   getUsersByRole: (role) => {
@@ -120,13 +139,21 @@ export const useUsers = create<UsersStore>((set, get) => ({
     const user = get().users.find(u => u.id === userId);
     if (!user) return;
 
-    // Simulate sending credentials
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (method === 'email') {
-      console.log(`Credentials sent to ${user.email}`);
-    } else {
-      console.log(`Credentials sent via SMS to user ${user.firstName} ${user.lastName}`);
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/credentials`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ method }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi des identifiants');
+      }
+
+      console.log(`Identifiants envoyés via ${method} à ${user.email}`);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi des identifiants:', error);
+      throw error;
     }
   }
 }));

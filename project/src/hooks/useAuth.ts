@@ -1,94 +1,17 @@
 import { create } from 'zustand';
-import { User, UserRole } from '../types';
+import { User } from '../types';
 
 interface AuthStore {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  updateUser: (userData: Partial<User>) => void;
+  checkAuth: () => Promise<boolean>;
+  getTokenInfo: () => void;
 }
 
-// Mock users for demonstration - Including default super admin
-const mockUsers: Record<string, { password: string; user: User }> = {
-  // Super Admin par défaut - OBLIGATOIRE pour l'initialisation
-  'admin@esp.sn': {
-    password: 'admin123',
-    user: {
-      id: 'admin-1',
-      email: 'admin@esp.sn',
-      firstName: 'Super',
-      lastName: 'Administrateur',
-      role: 'admin',
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00Z'
-    }
-  },
-  // Comptes de démonstration pour chaque rôle
-  'agent@esp.sn': {
-    password: 'agent123',
-    user: {
-      id: '1',
-      email: 'agent@esp.sn',
-      firstName: 'Amadou',
-      lastName: 'Diallo',
-      role: 'agent',
-      department: 'Informatique',
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00Z'
-    }
-  },
-  'chef@esp.sn': {
-    password: 'chef123',
-    user: {
-      id: '2',
-      email: 'chef@esp.sn',
-      firstName: 'Fatou',
-      lastName: 'Sall',
-      role: 'chef_departement',
-      department: 'Informatique',
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00Z'
-    }
-  },
-  'direction@esp.sn': {
-    password: 'direction123',
-    user: {
-      id: '3',
-      email: 'direction@esp.sn',
-      firstName: 'Ousmane',
-      lastName: 'Ba',
-      role: 'direction',
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00Z'
-    }
-  },
-  'recteur@esp.sn': {
-    password: 'recteur123',
-    user: {
-      id: '4',
-      email: 'recteur@esp.sn',
-      firstName: 'Professeur',
-      lastName: 'Ndiaye',
-      role: 'recteur',
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00Z'
-    }
-  },
-  'auditeur@esp.sn': {
-    password: 'audit123',
-    user: {
-      id: '5',
-      email: 'auditeur@esp.sn',
-      firstName: 'Aïcha',
-      lastName: 'Mbaye',
-      role: 'auditeur',
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00Z'
-    }
-  }
-};
+const API_BASE_URL = 'http://localhost:3001/api';
 
 export const useAuth = create<AuthStore>((set, get) => ({
   user: null,
@@ -97,43 +20,84 @@ export const useAuth = create<AuthStore>((set, get) => ({
 
   login: async (email: string, password: string) => {
     set({ isLoading: true });
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = mockUsers[email];
-    if (mockUser && mockUser.password === password) {
-      const user = { ...mockUser.user, lastLogin: new Date().toISOString() };
-      set({ user, isAuthenticated: true, isLoading: false });
-      localStorage.setItem('esp_user', JSON.stringify(user));
-    } else {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Identifiants invalides');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        localStorage.setItem('esp_token', data.data.token);
+        set({ user: data.data.user, isAuthenticated: true, isLoading: false });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
       set({ isLoading: false });
-      throw new Error('Identifiants invalides. Vérifiez votre email et mot de passe.');
+      return false;
     }
   },
 
   logout: () => {
+    localStorage.removeItem('esp_token');
     set({ user: null, isAuthenticated: false });
-    localStorage.removeItem('esp_user');
   },
 
-  updateUser: (userData) => {
-    const currentUser = get().user;
-    if (currentUser) {
-      const updatedUser = { ...currentUser, ...userData };
-      set({ user: updatedUser });
-      localStorage.setItem('esp_user', JSON.stringify(updatedUser));
+  checkAuth: async () => {
+    const token = localStorage.getItem('esp_token');
+    if (!token) {
+      set({ user: null, isAuthenticated: false });
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          set({ user: data.data, isAuthenticated: true });
+          return true;
+        }
+      }
+      
+      set({ user: null, isAuthenticated: false });
+      return false;
+    } catch (error) {
+      console.error('Erreur de vérification d\'authentification:', error);
+      set({ user: null, isAuthenticated: false });
+      return false;
+    }
+  },
+
+  getTokenInfo: () => {
+    const token = localStorage.getItem('esp_token');
+    if (!token) {
+      console.log('Aucun token trouvé');
+      return;
+    }
+
+    try {
+      // Décoder le token JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      console.log('Informations du token JWT:', decoded);
+      console.log('User ID dans le token:', decoded.userId);
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
     }
   }
 }));
-
-// Initialize auth state from localStorage
-const storedUser = localStorage.getItem('esp_user');
-if (storedUser) {
-  try {
-    const user = JSON.parse(storedUser);
-    useAuth.setState({ user, isAuthenticated: true });
-  } catch (error) {
-    localStorage.removeItem('esp_user');
-  }
-}
